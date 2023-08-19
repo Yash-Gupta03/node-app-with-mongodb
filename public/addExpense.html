@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-policy" content="script-src 'self' https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js https://checkout.razorpay.com/v1/checkout.js 'unsafe-inline';"/>
+    <!-- <meta http-equiv="Content-Security-policy" content="script-src 'self' https://checkout.razorpay.com/v1/checkout.js 'unsafe-inline';"/> -->
+    
+    <title>Add Expense</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body style="background-color: rgb(189, 244, 255);"> 
+
+    <nav class="navbar navbar-expand-xxl navbar bg-gradient">
+      <div class="container-fluid d-flex bd-highlight mb-1">
+        <a class="navbar-brand me-auto p-1 bd-highlight" href="#">Expense App</a>
+        <button id="report" class="btn btn-link navbar-brand p-1 bd-highlight" style="visibility: visible">Report</button>
+        <button id="leader-board" class="btn btn-link navbar-brand p-1 bd-highlight" style="visibility: hidden">LeaderBoard</button>
+      <button id="downloadexpense" onclick="download()" class="btn btn-link navbar-brand p-1 bd-highlight" style="visibility: hidden">Download Report</button>
+      <button id="rzp-btn" style="visibility: visible" class="btn btn-link navbar-brand p-1 bd-highlight">Buy Premium</button>
+      <button id="rzp-btn-premium" style="visibility: hidden" class="btn btn-link navbar-brand p-1 bd-highlight">You are Premium user</button>
+      <button id="log-out" style="visibility: visible" class="btn btn-link navbar-brand p-1 bd-highlight">Log out</button>
+      </div>
+    </nav>
+    
+
+    <div style="background-color: rgb(189, 244, 255); " class="container w-50 mt-5">
+      <div  class="form-details mt-5"></div>
+      <h2 id="form-heading" class="m-4 pt-3">Add Expense</h2>
+
+      <!-- Form  -->
+      <form onsubmit="expensedata(event)">
+        <div class="form-floating m-4 w-50">
+          <input
+            type="text"
+            name="price"
+            id="price"
+            placeholder="price"
+            class="form-control"
+          />
+          <label class="form-label" for="price">Price</label>
+        </div>
+
+        <div class="form-floating m-4 w-50">
+          <input
+            type="description"
+            name="description"
+            id="description"
+            placeholder="description"
+            class="form-control"
+          />
+          <label class="form-label" for="description">Description</label>
+        </div>
+
+        <select
+          class="form-select mt-4 ms-4 w-auto"
+          aria-label="Default select example"
+          id="category"
+        >
+          <!-- <option selected></option> -->
+          <option value="food">food</option>
+          <option value="petrol">petrol</option>
+          <option value="salary">salary</option>
+          <option value="extra">extra</option>
+        </select>
+        <button type="submit" class="btn btn-primary m-4">Submit</button>
+      </form>
+      <!-- <button id="leader-board" class="btn btn-primary m-4" style="visibility: hidden">LeaderBoard</button>
+      <button id="downloadexpense" onclick="download()" class="btn btn-primary m-4" style="visibility: hidden">Download Report</button> -->
+    </div>
+    <div class="show-details d-flex justify-content-start">
+    <div class="child1 p-4">
+    <h3>Expenses</h3>
+    <div class="rows d-flex align-items-baseline">
+    <h5>Rows per page</h5>
+      <select
+          class="form-select mt-4 ms-4 w-auto"
+          aria-label="Default select example"
+          id="pagesize"
+        >
+          <!-- <option selected></option> -->
+          <option value=5>5</option>
+          <option value=10>10</option>
+          <option value=15>15</option>
+          <option value=20>20</option>
+        </select>
+    </div>
+    <!-- <ul id="list"></ul> -->
+    <div class="w-50 mt-2">
+    <table class="table table-bordered border-dark table-sm table-responsive  " id="table">
+      <thead class="thead-dark">
+        <tr>
+          <!-- <th scope="col">S.No.</th> -->
+          <th class="w-0" scope="col">Price</th>
+          <th class="w-0" scope="col">Description</th>
+          <th class="w-0" scope="col">Category</th>
+          <th class="w-0" scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+      </tbody>
+    </table>
+  </div>
+    <div id="pagination"></div>
+  </div>
+  <div id="lead" style="visibility: hidden;" class="child2">
+    <h3>LeaderBoard</h3>
+    <!-- <ul id="leaderboard-list"></ul> -->
+    <div class="w-75 mt-2">
+      <table class="table table-bordered border-dark table-responsive  " id="leaderboard-table">
+        <thead class="thead-dark">
+          <tr>
+            <!-- <th scope="col">S.No.</th> -->
+            <th class="w-0" scope="col">Name</th>
+            <th class="w-0" scope="col">Total-Expenses</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-table-body">
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </div>
+
+  <!-- <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+    crossorigin="anonymous"
+    ></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="addExpense.js"></script>
+  </body>
+</html>
