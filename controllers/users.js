@@ -27,19 +27,27 @@ exports.signUp = async (req, res, next) => {
     ) {
       res.status(400).json({ message: "bad parameters" });
     }
-    const check = await User.findAll({where:{email:email}});
+    const check = await User.find({email:email});
     if(check.length > 0){
       res.status(200).json({ success: false, message: "Email already exists, try again" });
     }else{
     bcrypt.hash(password, 10, async (err, hash) => {
       // console.log(err);
-      const data = await User.create({
-        name: name,
+      // const data = await User.create({
+      //   name: name,
+      //   email: email,
+      //   password: hash,
+      //   ispremiumuser: false,
+      //   totalExpense: 0
+      // }).catch((err=>console.log(err)))
+      const user = await new User({
+          name: name,
         email: email,
         password: hash,
         ispremiumuser: false,
         totalExpense: 0
-      }).catch((err=>console.log(err)))
+      });
+      user.save();
       res.status(201).json({success:true, message:'new user created'});
     });
   }} catch (err) {
@@ -57,9 +65,10 @@ exports.login = async (req, res, next) => {
       res.status(400).json({ message: "bad parameters" });
     }
 
-    const data = await User.findAll({
-      where: { email: email },
-    });
+    const data = await User.find(
+       { email: email }
+    );
+    console.log(data[0].id);
     if (data.length > 0) {
       bcrypt.compare(password, data[0].password, (error, result) => {
         if (error) {

@@ -11,8 +11,10 @@ async function getReport(){
   }
 
   function showDataOnScreen(data) {
+    // console.log(data);
     const parentElement = document.getElementById("table-body");
-    const childElement = `<tr id=${data.id}><td>${data.createdAt.slice(0,10)}</td><td>${data.description}</td><td>${data.category}</td><td>${data.price}</td></tr>`
+    const childElement = `<tr id=${data.id}><td></td><td>${data.description}</td><td>${data.category}</td><td>${data.price}</td></tr>`
+    // const childElement = `<tr id=${data.id}><td>${data.createdAt.slice(0,10)}</td><td>${data.description}</td><td>${data.category}</td><td>${data.price}</td></tr>`
     parentElement.innerHTML += childElement;
   }
 

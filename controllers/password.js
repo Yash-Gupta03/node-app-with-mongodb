@@ -11,7 +11,7 @@ const User = require('../models/user');
 
 exports.forgotPassword = async (req, res, next)=>{
 
-const validEmail = await User.findAll({where:{email:req.body.email}})
+const validEmail = await User.find({email:req.body.email})
 
 if(validEmail.length === 0){
     res.status(500).json({message:'Invalid Email'})
@@ -33,7 +33,10 @@ const receivers = [{
 
 const senduuid = uuid()
 
-await FPR.create({uuid:senduuid, userId:validEmail[0].id, isactive:true})
+// await FPR.create({uuid:senduuid, userId:validEmail[0].id, isactive:true})
+
+const pass = new FPR({uuid:senduuid, userId:validEmail[0].id, isactive:true})
+pass.save();
 
 transEmailApi.sendTransacEmail({
     sender,
@@ -51,7 +54,7 @@ exports.resetPassword = async (req, res, next)=>{
     console.log("Reset Password is initiated");
     const reqId = req.params.reqId;
     console.log('reqid------------------------------------------', reqId);
-    const dbuuid = await FPR.findAll({where:{uuid:reqId}});
+    const dbuuid = await FPR.find({uuid:reqId});
     console.log( 'dbuuid----------------------------------------',dbuuid);
     if(dbuuid.length === 0){
         res.status(500).send('Bad Request, try Again');
@@ -85,8 +88,8 @@ exports.updatePassword = (req, res) => {
         const { resetpasswordid } = req.params;
         console.log(newpassword);
         console.log(resetpasswordid);
-        FPR.findOne({ where : { id: resetpasswordid }}).then(resetpasswordrequest => {
-            User.findOne({where: { id : resetpasswordrequest.userId}}).then(user => {
+        FPR.findOne( { id: resetpasswordid }).then(resetpasswordrequest => {
+            User.findOne( { id : resetpasswordrequest.userId}).then(user => {
                 if(user) {
                     const saltRounds = 10;
                     bcrypt.genSalt(saltRounds, function(err, salt) {
@@ -99,7 +102,7 @@ exports.updatePassword = (req, res) => {
                                 console.log(err);
                                 throw new Error(err);
                             }
-                            user.update({ password: hash }).then(() => {
+                            user.updateOne({ password: hash }).then(() => {
                                 // res.sendFile(path.join(__dirname,'../public','login.html'))
                                 res.redirect(('/login.html'))
                                 // res.status(201).json({message: 'Successfuly update the new password'})

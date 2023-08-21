@@ -9,6 +9,10 @@ const orderSchema = new Schema({
   paymentid: String,
   orderid: String,
   status: String,
+  userId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user"
+  }
 })
 
 // const Order = sequelize.define("order", {

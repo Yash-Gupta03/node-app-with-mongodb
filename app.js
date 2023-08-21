@@ -57,6 +57,7 @@ app.use((req, res)=>{
 //   .catch((err) => console.log(err));
 
 mongoose.connect('mongodb+srv://yashgupta:Yash123@expensecluster.bdsfqlt.mongodb.net/?retryWrites=true&w=majority').then(result => {    
+  console.log('connected');
     app.listen(3000);
   }).catch(err => {
     console.log(err);

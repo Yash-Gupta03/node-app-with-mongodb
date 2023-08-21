@@ -3,9 +3,6 @@ const mongoose  = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  id: {
-    type: Number,
-  },
   name: {
     type: String,
   },
@@ -18,6 +15,7 @@ const userSchema = new Schema({
   ispremiumuser: Boolean,
   totalExpense: {
     type:Number,
+    default: 0
   }
 })
 
@@ -45,4 +43,4 @@ const userSchema = new Schema({
 //   }
 // });
 
-module.exports = Mongoose.model('user', userSchema);
+module.exports = mongoose.model('user', userSchema);

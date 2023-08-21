@@ -24,6 +24,7 @@ async function expensedata(e) {
       if (response.status == 200) {
         const data = response.data.newExpenseDetail;
         showDataOnScreen(data);
+        console.log(data);
       }
 
     }catch(err) {
@@ -129,15 +130,22 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 function showDataOnScreen(data) {
   const parentElement = document.getElementById("table-body");
-  console.log("I am being called");
+  let id = data._id;
+  console.log(id, "I am being called");
   // const childElement = `<li id=${data.id}>${data.price} --- ${data.description} --- ${data.category}
   //                       <button onclick="deleteExpense(${data.id})">Delete</button></li>`;
-  const childElement = `<tr id=${data.id}><td>${data.price}</td><td>${data.description}</td><td>${data.category}</td><td><button class="btn btn-white" onclick="deleteExpense(${data.id})">Delete</button></td></tr>`
+  const childElement = `<tr id=${data._id}><td>${data.price}</td><td>${data.description}</td><td>${data.category}</td><td><button id="deletebtn" class="btn btn-white">Delete</button></td></tr>`
   parentElement.innerHTML += childElement;
+  const delButton = document.getElementById('deletebtn');
+  delButton.addEventListener('click', function() {
+    deleteExpense(id);
+  });
+  // <button onClick={() => onRemove(id)}>Remove</button>
 }
 
 async function deleteExpense(id) {
   try{
+    console.log(id);
   const token = localStorage.getItem("id");
   const res = await axios.delete(`http://localhost:3000/expense/delete-expense/${id}`, {
       headers: { Authorization: token },

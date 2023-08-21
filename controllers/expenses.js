@@ -1,7 +1,7 @@
 const Expense = require("../models/expense");
 const User = require('../models/user');
-const sequelize = require("../utils/database");
-const AWS = require('aws-sdk'); 
+const mongoose  = require('mongoose');
+// const sequelize = require("../utils/database");
 
 function isStringInvalid(string) {
   if (string == undefined || string.length === 0) {
@@ -13,7 +13,6 @@ function isStringInvalid(string) {
 
 
 exports.addExpense = async (req, res, next) => {
-  const t = await sequelize.transaction();
   const { price, description, category } = req.body;
   if (
     isStringInvalid(price) ||
@@ -24,29 +23,33 @@ exports.addExpense = async (req, res, next) => {
   }
   try{
   const total = Number(req.user.totalExpense) + Number(price);
-  const userupdate = await User.update({totalExpense:total}, {where:{id:req.user.id}}, {transaction:t});
-  const data = await Expense.create({
+
+  const userupdate = await User.updateOne({id:req.user.id},{totalExpense:total});
+
+  const data = new Expense({
     price: price,
     description: description,
     category: category,
     userId: req.user.id,
-  }, {transaction:t});
-  await t.commit();
+  });
+  data.save();
   res.json({ newExpenseDetail: data });
 }catch(err){
-  await t.rollback();
   console.log(err);
 }};
 
 exports.getExpense = async (req, res, next) => {
+  console.log('-------------------------------');
+  console.log(req.user.id);
   const ITEMS_PER_PAGE = +req.query.limit;
   console.log(req.query.limit);
   const page = +req.query.page || 1;
   console.log(page);
-  let totalItems = await Expense.count({where:{userId:req.user.id}});
+  let totalItems = await Expense.countDocuments({userId: req.user.id});
   console.log(totalItems);
-  const data = await Expense.findAll({ where: { userId: req.user.id }, offset: (page-1)* ITEMS_PER_PAGE,
-limit:ITEMS_PER_PAGE });
+  let off = (page-1)* ITEMS_PER_PAGE;
+  let l = ITEMS_PER_PAGE;
+  const data = await Expense.find( { userId: req.user.id }).skip(off).limit(l);
   res.json({ allExpenseDetails: data,
   currentPage:page,
 nextPage: page+1,
@@ -57,20 +60,22 @@ lastPage:Math.ceil(totalItems/ITEMS_PER_PAGE) });
 };
 
 exports.deleteExpense = async (req, res, next) => {
-  
-    const t = await sequelize.transaction();
+    // const t = await sequelize.transaction();
+    console.log(req.params.id);
+    console.log("On delete");
     try{
-    const price = await Expense.findAll({where:{id:req.params.id}, attributes:['price']},{transaction:t});
-    console.log(`price = `, price);
-    const total = Number(req.user.totalExpense) - Number(price[0].price);
-    const userupdate = await User.update({totalExpense:total}, {where:{id:req.user.id}}, {transaction:t});
-    const data = await Expense.destroy({
-      where: { id: req.params.id, userId: req.user.id },
-    });
-    await t.commit();
+    const expense = await Expense.find({_id:req.params.id});
+    console.log(`expense = `, expense.price);
+    // const total = Number(req.user.totalExpense) - Number(expense.price[0].price);
+    // console.log(total);
+    // const userupdate = await User.updateOne( {_id:req.user.id}, {totalExpense:total});
+    const data = await Expense.deleteOne(
+       { _id: req.params.id},
+    );
+    // await t.commit();
     res.status(200).json({ data: data });
   }catch(error){
-    await t.rollback();
+    // await t.rollback();
   }
 }
 
@@ -101,7 +106,7 @@ function uploadToS3(data, filename){
 }
 
 exports.downloadExpenses =  async (req, res) => {
-  const expenses  = await Expense.findAll({ where: { userId: req.user.id } });
+  const expenses  = await Expense.find( { userId: req.user.id });
   console.log(expenses);
   const stringifiedExpense = JSON.stringify(expenses);
   const userId = req.user.id;
@@ -113,6 +118,6 @@ exports.downloadExpenses =  async (req, res) => {
 
 
 exports.getReport = async (req, res) => {
-  const data = await Expense.findAll({ where: { userId: req.user.id } });
+  const data = await Expense.find( { userId: req.user.id } );
   res.json({ reportDetails: data });
 };

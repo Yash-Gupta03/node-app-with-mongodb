@@ -4,12 +4,13 @@ const forgotPasswordRequestsSchema = new Schema({
         uuid:{
         type:String,
       },
-    userId:{
-        type:Number,
-    },
     isactive:{
         type:Boolean,
-    }
+    },
+    userId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user"
+      }
 
 
 })

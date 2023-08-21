@@ -14,6 +14,11 @@ const expenseSchema = new Schema({
       category: {
         type: String,
       },
+      userId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user"
+      }
+
 })
 
 // const Expense = sequelize.define("expense", {
